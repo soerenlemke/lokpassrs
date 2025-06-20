@@ -1,6 +1,7 @@
 mod password;
 
 use crate::password::Password;
+use arboard::Clipboard;
 use crossterm::event;
 use crossterm::event::{Event, KeyCode, KeyEventKind};
 use ratatui::layout::Constraint;
@@ -10,6 +11,7 @@ use ratatui::Frame;
 struct AppState {
     selected_row: usize,
     passwords: Vec<Password>,
+    clipboard: Clipboard,
 }
 
 fn main() -> std::io::Result<()> {
@@ -27,6 +29,7 @@ fn main() -> std::io::Result<()> {
     let mut app_state = AppState {
         selected_row: 1,
         passwords: vec![password_one, password_two],
+        clipboard: Clipboard::new().unwrap(),
     };
 
     let mut terminal = ratatui::init();
@@ -61,6 +64,14 @@ fn handle_events(app_state: &mut AppState, num_rows: usize) -> std::io::Result<b
                     app_state.selected_row += 1;
                 }
             }
+            KeyCode::Char('u') => {
+                let username = &app_state.passwords[app_state.selected_row - 1].username;
+                app_state.clipboard.set_text(username).unwrap();
+            }
+            KeyCode::Char('p') => {
+                let password = &app_state.passwords[app_state.selected_row - 1].password;
+                app_state.clipboard.set_text(password).unwrap();
+            }
             _ => {}
         },
         _ => {}
@@ -79,6 +90,7 @@ fn draw(frame: &mut Frame, app_state: &AppState) {
             pw.username.to_string(),
             pw.password.to_string(),
         ]);
+
         if i + 1 == app_state.selected_row {
             row = row.style(Style::default().fg(Color::White).bg(Color::Blue));
         }
