@@ -1,8 +1,10 @@
+mod password;
+
+use crate::password::Password;
 use crossterm::event;
 use crossterm::event::{Event, KeyCode, KeyEventKind};
-use ratatui::layout::Constraint::{Length, Min, Percentage};
-use ratatui::layout::Layout;
-use ratatui::widgets::Block;
+use ratatui::layout::Constraint;
+use ratatui::widgets::{Block, Borders, Row, Table};
 use ratatui::Frame;
 
 fn main() -> std::io::Result<()> {
@@ -34,13 +36,37 @@ fn handle_events() -> std::io::Result<bool> {
 }
 
 fn draw(frame: &mut Frame) {
-    let vertical = Layout::vertical([Length(1), Min(0)]);
-    let [title_area, main_area] = vertical.areas(frame.area());
-    let horizontal = Layout::horizontal([Percentage(20), Percentage(40), Percentage(40)]);
-    let [title, username, password] = horizontal.areas(main_area);
+    let area = frame.area();
 
-    frame.render_widget(Block::bordered().title("passwords"), title_area);
-    frame.render_widget(Block::bordered().title("title"), title);
-    frame.render_widget(Block::bordered().title("username"), username);
-    frame.render_widget(Block::bordered().title("password"), password);
+    let password_one = Password::new(
+        "test title one".parse().unwrap(),
+        "test username one".parse().unwrap(),
+        "test password one".parse().unwrap(),
+    );
+    let password_two = Password::new(
+        "test title two".parse().unwrap(),
+        "test username two".parse().unwrap(),
+        "test password two".parse().unwrap(),
+    );
+    let passwords = [password_one, password_two];
+
+    let mut rows = vec![Row::new(vec!["Title", "Username", "Password"])];
+    for pw in passwords {
+        rows.push(Row::new(vec![
+            pw.title.to_string(),
+            pw.username.to_string(),
+            pw.password.to_string(),
+        ]));
+    }
+
+    let widths = [
+        Constraint::Percentage(30),
+        Constraint::Percentage(35),
+        Constraint::Percentage(35),
+    ];
+
+    let table =
+        Table::new(rows, widths).block(Block::default().borders(Borders::ALL).title("Passwords"));
+
+    frame.render_widget(table, area);
 }
