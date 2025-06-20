@@ -1,3 +1,4 @@
+use crate::password::Password;
 use crate::AppState;
 use crossterm::event::KeyEvent;
 use std::time::Instant;
@@ -29,6 +30,19 @@ pub fn handle_events_with_key(
             let password = &app_state.passwords[app_state.selected_row - 1].password;
             app_state.clipboard.set_text(password).unwrap();
             app_state.notification = Some(("password copied!".to_string(), Instant::now()));
+        }
+        KeyCode::Char('a') => {
+            app_state.passwords.push(Password::new(
+                "new title".parse().unwrap(),
+                "new username".parse().unwrap(),
+                "new password".parse().unwrap(),
+            ));
+            app_state.selected_row = app_state.passwords.len();
+            app_state.notification =
+                Some(("neues Passwort hinzugefügt".to_string(), Instant::now()));
+        }
+        KeyCode::Char('e') => {
+            todo!("edit mode")
         }
         _ => {}
     }
