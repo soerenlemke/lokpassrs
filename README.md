@@ -1,6 +1,6 @@
 # lokpassrs
 
-Cross-platform password manager.
+Cross-platform password manager written in Rust.
 
 ## License
 
