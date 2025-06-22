@@ -1,4 +1,5 @@
-use crate::AppState;
+use crate::app_state::EditField;
+use crate::{AppState, Mode};
 use ratatui::layout::{Constraint, Rect};
 use ratatui::prelude::{Span, Style};
 use ratatui::style::Color;
@@ -7,8 +8,28 @@ use ratatui::Frame;
 use std::time::Duration;
 
 pub fn draw(frame: &mut Frame, app_state: &mut AppState) {
-    let area = frame.area();
+    if let Mode::Editing { field, buffer, .. } = &app_state.mode {
+        let (fieldname, color) = match field {
+            EditField::Title => ("Title", Color::Magenta),
+            EditField::Username => ("Username", Color::Cyan),
+            EditField::Password => ("Password", Color::Yellow),
+        };
+        let edit_area = Rect {
+            x: 10,
+            y: 10,
+            width: 40,
+            height: 3,
+        };
+        let para = Paragraph::new(Span::styled(
+            format!("Edit {}:\n{}", fieldname, buffer),
+            Style::default().fg(color).bg(Color::Black),
+        ))
+        .block(Block::default().borders(Borders::ALL).title("Edit Mode"));
+        frame.render_widget(para, edit_area);
+        return;
+    }
 
+    let area = frame.area();
     draw_table(frame, app_state, area);
     draw_notification(frame, app_state, area);
 }

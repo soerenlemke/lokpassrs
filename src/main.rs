@@ -1,21 +1,16 @@
+mod app_state;
 mod events;
 mod password;
 mod ui;
 
+use crate::app_state::{AppState, Mode};
 use crate::events::handle_events_with_key;
 use crate::password::Password;
 use crate::ui::draw;
 use arboard::Clipboard;
 use crossterm::event;
 use crossterm::event::Event;
-use std::time::{Duration, Instant};
-
-struct AppState {
-    selected_row: usize,
-    passwords: Vec<Password>,
-    clipboard: Clipboard,
-    notification: Option<(String, Instant)>,
-}
+use std::time::Duration;
 
 fn main() -> std::io::Result<()> {
     let password_one = Password::new(
@@ -34,6 +29,7 @@ fn main() -> std::io::Result<()> {
         passwords: vec![password_one, password_two],
         clipboard: Clipboard::new().unwrap(),
         notification: None,
+        mode: Mode::Normal,
     };
 
     let mut terminal = ratatui::init();
