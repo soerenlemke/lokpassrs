@@ -8,6 +8,8 @@ use ratatui::Frame;
 use std::time::Duration;
 
 pub fn draw(frame: &mut Frame, app_state: &mut AppState) {
+    let area = frame.area();
+
     if let Mode::Editing { field, buffer, .. } = &app_state.mode {
         let (fieldname, color) = match field {
             EditField::Title => ("Title", Color::Magenta),
@@ -15,8 +17,8 @@ pub fn draw(frame: &mut Frame, app_state: &mut AppState) {
             EditField::Password => ("Password", Color::Yellow),
         };
         let edit_area = Rect {
-            x: 10,
-            y: 10,
+            x: (area.width / 2) - 20,
+            y: (area.height / 2) - 2,
             width: 40,
             height: 3,
         };
@@ -29,7 +31,6 @@ pub fn draw(frame: &mut Frame, app_state: &mut AppState) {
         return;
     }
 
-    let area = frame.area();
     draw_table(frame, app_state, area);
     draw_notification(frame, app_state, area);
 }
