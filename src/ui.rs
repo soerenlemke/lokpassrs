@@ -12,11 +12,11 @@ pub fn draw(frame: &mut Frame, app_state: &mut AppState) {
     let area = frame.area();
 
     if let Mode::Editing {
+        row: _row,
         active_field,
         title,
         username,
         password,
-        ..
     } = &app_state.mode
     {
         let highlight = |current: &EditField, target: EditField| {
