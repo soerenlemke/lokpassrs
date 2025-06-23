@@ -14,11 +14,14 @@ pub enum Mode {
     Normal,
     Editing {
         row: usize,
-        field: EditField,
-        buffer: String,
+        active_field: EditField,
+        title: String,
+        username: String,
+        password: String,
     },
 }
 
+#[derive(PartialEq)]
 pub enum EditField {
     Title,
     Username,

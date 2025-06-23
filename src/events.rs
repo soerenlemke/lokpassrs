@@ -9,37 +9,56 @@ pub fn handle_events_with_key(
     num_rows: usize,
     key: KeyEvent,
 ) -> std::io::Result<bool> {
-    if let Mode::Editing { row, field, buffer } = &mut app_state.mode {
+    if let Mode::Editing {
+        row,
+        active_field,
+        title,
+        username,
+        password,
+    } = &mut app_state.mode
+    {
         match key.code {
             KeyCode::Esc => {
                 app_state.mode = Mode::Normal;
             }
-            KeyCode::Enter => match field {
+            KeyCode::Enter => {
+                let pw = &mut app_state.passwords[*row];
+                pw.title = title.parse().unwrap();
+                pw.username = username.parse().unwrap();
+                pw.password = password.parse().unwrap();
+                app_state.mode = Mode::Normal;
+                app_state.notification = Some(("Passwort geändert!".to_string(), Instant::now()));
+            }
+            KeyCode::Tab => {
+                *active_field = match active_field {
+                    EditField::Title => EditField::Username,
+                    EditField::Username => EditField::Password,
+                    EditField::Password => EditField::Title,
+                };
+            }
+            KeyCode::BackTab => {
+                *active_field = match active_field {
+                    EditField::Title => EditField::Password,
+                    EditField::Username => EditField::Title,
+                    EditField::Password => EditField::Username,
+                };
+            }
+            KeyCode::Char(c) => match active_field {
+                EditField::Title => title.push(c),
+                EditField::Username => username.push(c),
+                EditField::Password => password.push(c),
+            },
+            KeyCode::Backspace => match active_field {
                 EditField::Title => {
-                    app_state.passwords[*row].title = buffer.parse().unwrap();
-                    *field = EditField::Username;
-                    buffer.clear();
-                    buffer.push_str(&app_state.passwords[*row].username.to_string());
+                    title.pop();
                 }
                 EditField::Username => {
-                    app_state.passwords[*row].username = buffer.parse().unwrap();
-                    *field = EditField::Password;
-                    buffer.clear();
-                    buffer.push_str(&app_state.passwords[*row].password.to_string());
+                    username.pop();
                 }
                 EditField::Password => {
-                    app_state.passwords[*row].password = buffer.parse().unwrap();
-                    app_state.mode = Mode::Normal;
-                    app_state.notification =
-                        Some(("Passwort geändert!".to_string(), Instant::now()));
+                    password.pop();
                 }
             },
-            KeyCode::Char(c) => {
-                buffer.push(c);
-            }
-            KeyCode::Backspace => {
-                buffer.pop();
-            }
             _ => {}
         }
         return Ok(false);
@@ -79,12 +98,14 @@ pub fn handle_events_with_key(
         }
         KeyCode::Char('e') => {
             let row = app_state.selected_row - 1;
-            let title = app_state.passwords[row].title.to_string();
+            let pw = &app_state.passwords[row];
             app_state.mode = Mode::Editing {
                 row,
-                field: EditField::Title,
-                buffer: title,
-            }
+                active_field: EditField::Title,
+                title: pw.title.to_string(),
+                username: pw.username.to_string(),
+                password: pw.password.to_string(),
+            };
         }
         _ => {}
     }
