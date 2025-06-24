@@ -29,14 +29,14 @@ pub fn handle_events_with_key(
                 app_state.mode = Mode::Normal;
                 app_state.notification = Some(("Passwort geändert!".to_string(), Instant::now()));
             }
-            KeyCode::Tab => {
+            KeyCode::Tab | KeyCode::Down => {
                 *active_field = match active_field {
                     EditField::Title => EditField::Username,
                     EditField::Username => EditField::Password,
                     EditField::Password => EditField::Title,
                 };
             }
-            KeyCode::BackTab => {
+            KeyCode::BackTab | KeyCode::Up => {
                 *active_field = match active_field {
                     EditField::Title => EditField::Password,
                     EditField::Username => EditField::Title,
@@ -66,12 +66,12 @@ pub fn handle_events_with_key(
 
     match key.code {
         KeyCode::Char('q') => return Ok(true),
-        KeyCode::Up => {
+        KeyCode::Up | KeyCode::BackTab => {
             if app_state.selected_row > 1 {
                 app_state.selected_row -= 1;
             }
         }
-        KeyCode::Down => {
+        KeyCode::Down | KeyCode::Tab => {
             if app_state.selected_row + 1 < num_rows {
                 app_state.selected_row += 1;
             }
